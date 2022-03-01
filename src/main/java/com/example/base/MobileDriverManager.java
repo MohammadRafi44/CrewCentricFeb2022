@@ -3,18 +3,11 @@ package com.example.base;
 import com.example.utils.ConfigManager;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.AndroidElement;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
-import io.appium.java_client.remote.MobileCapabilityType;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
-import io.appium.java_client.service.local.AppiumServiceBuilder;
-import io.appium.java_client.service.local.flags.GeneralServerFlag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -28,8 +21,8 @@ public class MobileDriverManager {
 
     private static final Logger LOGGER = LogManager.getLogger(MobileDriverManager.class);
     private static final ThreadLocal<AndroidDriver<MobileElement>> WEB_DRIVER_THREAD_LOCAL = new ThreadLocal<>();
+    public static URL appiumUrl;
     private static AppiumDriverLocalService appiumDriverLocalService;
-    private static URL appiumUrl;
 
 
     private MobileDriverManager() {
@@ -59,7 +52,6 @@ public class MobileDriverManager {
             } else {
                 LOGGER.info("User provided capability is null. Ignoring...");
             }
-            appiumUrl = new URL("http://127.0.0.1:4723/wd/hub");
             AndroidDriver<MobileElement> androidDriver = new AndroidDriver<>(appiumUrl, desiredCapabilities);
             MobileDriverManager.setDriver(androidDriver);
             LOGGER.info("Android Driver successfully initialized. Session id : [{}]", androidDriver.getSessionId());

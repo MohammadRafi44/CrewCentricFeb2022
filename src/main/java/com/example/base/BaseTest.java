@@ -30,7 +30,7 @@ public abstract class BaseTest {
     private static final Logger LOGGER = LogManager.getLogger(BaseTest.class);
 
     @DataProvider(name = "testDataProvider")
-    public static Object[] testDataProvider(Method method) throws IOException {
+    public static Object[] testDataProvider(Method method) {
         List<Map<String, String>> controllerRowsList = ExcelManager.getControllerRowsList();
         List<Map<String, String>> rowMapList = controllerRowsList.stream()
                 .filter(rowMap -> method.getName().equals(rowMap.get("TestMethodName"))).collect(Collectors.toList());
@@ -45,12 +45,12 @@ public abstract class BaseTest {
     /**
      * User to override and provide desired capabilities. If there are no capabilities to add then simply return null
      */
-    public DesiredCapabilities addCapabilities() {
+    public DesiredCapabilities addCapabilities() throws Exception {
         return null;
     }
 
     @BeforeMethod(description = "Set Up", alwaysRun = true)
-    protected void setUp(ITestResult result, ITestContext context, Object[] objects) {
+    protected void setUp(ITestResult result, ITestContext context, Object[] objects) throws Exception {
         Map<String, String> controllerRowMap = ExcelManager.getControllerRowMapByTestMethodName(result.getMethod().getMethodName());
         ExtentTestManager.startTest(result.getMethod().getMethodName(), controllerRowMap.get("Description"));
         ExtentTest extentTest = ExtentTestManager.getTest();
@@ -103,10 +103,5 @@ public abstract class BaseTest {
         }
         ExcelManager.writeTestStatusToExcel(result);
     }
-
-//  @AfterSuite
-//  public void stopAppium(){
-//    MobileDriverManager.stopAppium();
-//  }
 
 }

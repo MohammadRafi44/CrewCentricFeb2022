@@ -5,6 +5,8 @@ import com.example.report.ExtentTestManager;
 import com.example.utils.ConfigManager;
 import com.example.utils.Helper;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.TouchAction;
+import io.appium.java_client.touch.offset.PointOption;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
@@ -160,6 +162,24 @@ public abstract class MobileActions {
     public static void enterText(By by, String value, String message) {
         enterText(find(by), value, message);
         LOGGER.debug("Entered text :  [{}] in Web element : [{}]", value, by.toString());
+    }
+
+    public static void hideKeyboard() throws Exception {
+        if (MobileDriverManager.getDriver().isKeyboardShown()) {
+            Thread.sleep(10000);
+            MobileDriverManager.getDriver().hideKeyboard();
+        }
+    }
+
+    public static void scroll(int y) {
+        Dimension size = MobileDriverManager.getDriver().manage().window().getSize();
+        int anchor = (int) (size.width / 2);
+        int startPoint = (int) (size.height / 2 - 50);
+        new TouchAction(MobileDriverManager.getDriver())
+                .longPress(PointOption.point(anchor, startPoint))
+                .moveTo(PointOption.point(anchor, startPoint + y))
+                .release()
+                .perform();
     }
 
     public static void enterText(WebElement webElement, String value, String message) {

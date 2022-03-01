@@ -4,16 +4,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.testng.ITestResult;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExcelManager {
@@ -25,7 +25,7 @@ public class ExcelManager {
         excelRow = getExcelRow();
     }
 
-    public static synchronized List<Map<String, String>> getControllerRowsList() throws IOException {
+    public static synchronized List<Map<String, String>> getControllerRowsList() {
         return excelRow;
     }
 
@@ -132,45 +132,118 @@ public class ExcelManager {
         LOGGER.debug("Successfully wrote back test result to TestRunner sheet");
     }
 
-    public static synchronized void writeToExcelColumn(Map<String, String> data, String sheetName, String columnName, String columnValueToSet) {
-        writeToExcelColumn(Constants.RUN_MANAGER_WORKBOOK.toString(), sheetName, data.get("TestMethodName"), columnName,
-                columnValueToSet);
-    }
-
-    public static synchronized void writeToExcelColumn(String workBookPath, String sheetName, String testMethodName, String columnName,
-                                                       String columnValueToSet) {
-        FileInputStream fileInputStream;
-        try {
-            fileInputStream = new FileInputStream(workBookPath);
-            Workbook workbook = new XSSFWorkbook(fileInputStream);
-            Sheet sheet = workbook.getSheet(sheetName);
-            Map<String, Integer> headersMap = new LinkedHashMap<>();
-            for (int i = 0; i < sheet.getRow(0).getPhysicalNumberOfCells(); i++) {
-                headersMap.put(sheet.getRow(0).getCell(i).getStringCellValue(), i);
-            }
-            for (int columnIndex = 1; columnIndex < sheet.getPhysicalNumberOfRows(); columnIndex++) {
-                String runTimePKey = sheet.getRow(columnIndex).getCell(headersMap.get("TestMethodName")).getStringCellValue();
-                if (runTimePKey.equals(testMethodName)) {
-                    sheet.getRow(columnIndex).getCell(headersMap.get(columnName)).setCellValue(columnValueToSet);
-                }
-            }
-            fileInputStream.close();
-            FileOutputStream fileOutputStream = new FileOutputStream(workBookPath);
-            workbook.write(fileOutputStream);
-            fileOutputStream.close();
-        } catch (Exception e) {
-            LOGGER.error(e);
-            throw new RuntimeException(e);
-        }
-        LOGGER.debug("Successfully wrote to excel");
-    }
-
     protected static Map<String, String> getControllerRowMapByTestMethodName(String testMethodName) {
         return excelRow.stream().filter(map -> map.get("TestMethodName").equals(testMethodName)).collect(Collectors.toList()).get(0);
     }
 
     private static String getCellValue(Cell cell) {
         return cell.getCellType().equals(CellType.NUMERIC) ? String.valueOf((int) cell.getNumericCellValue()) : cell.getStringCellValue();
+    }
+
+    // My Code
+    public static Sheet getSheet(Path excelPath, String sheetName) throws Exception {
+        FileInputStream fileInputStream;
+        fileInputStream = new FileInputStream(excelPath.toFile());
+        Workbook workbook = new XSSFWorkbook(fileInputStream);
+        return workbook.getSheet(sheetName);
+    }
+
+    public static int getRowIndex(String reference, Path excelPath, String sheetName, int rowNumber) throws Exception {
+        XSSFRow row;
+        Iterator<Row> rows = ExcelManager.getSheet(excelPath, sheetName).rowIterator();
+        while (rows.hasNext()) {
+            row = (XSSFRow) rows.next();
+            if (row.getCell(rowNumber).toString().trim().equals(reference.trim())) {
+                return row.getRowNum();
+            }
+        }
+        LOGGER.error("No Such Reference Found. Reference -> " + reference);
+        throw new Exception("No Such Reference Found. Reference -> " + reference);
+    }
+
+    public static String getCellValue(XSSFCell cell) {
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            return "";
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            double value = cell.getNumericCellValue();
+            return value + "";
+        } else if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.BOOLEAN || cell.getCellType() == CellType.ERROR
+                || cell.getCellType() == CellType.FORMULA) {
+            throw new RuntimeException("Cell Type is not supported ");
+        }
+        return "";
+    }
+
+    public static Map<String, String> getRowValue(int rowNumber, Path excelPath, String sheetName) throws Exception {
+        Map<String, String> rowValue = new HashMap<>();
+        Sheet sheet = ExcelManager.getSheet(excelPath, sheetName);
+        Iterator<Cell> keyCells = sheet.getRow(0).cellIterator();
+        XSSFRow valueRow = (XSSFRow) sheet.getRow(rowNumber);
+        int i = 0;
+        while (keyCells.hasNext()) {
+            String key = keyCells.next().toString().trim();
+            String value;
+            try {
+                value = getCellValue(valueRow.getCell(i)).trim();
+            } catch (NoSuchElementException nse) {
+                value = "";
+            }
+            i++;
+            rowValue.put(key, value);
+        }
+        return rowValue;
+    }
+
+    public static Map<String, String> getRowValue(int rowNumber, int headerRowNumber, Path excelPath, String sheetName) throws Exception {
+        Map<String, String> rowValue = new HashMap<>();
+        Sheet sheet = ExcelManager.getSheet(excelPath, sheetName);
+        Iterator<Cell> keyCells = sheet.getRow(headerRowNumber).cellIterator();
+        XSSFRow valueRow = (XSSFRow) sheet.getRow(rowNumber);
+        int i = 0;
+        while (keyCells.hasNext()) {
+            String key = keyCells.next().toString().trim();
+            String value;
+            try {
+                value = getCellValue(valueRow.getCell(i)).trim();
+            } catch (NoSuchElementException nse) {
+                value = "";
+            }
+            i++;
+            rowValue.put(key, value);
+        }
+        return rowValue;
+    }
+
+    public static Map<String, String> getRowValue(String reference, Path excelPath, String sheetName) throws Exception {
+        return getRowValue(getRowIndex(reference, excelPath, sheetName, 0), excelPath, sheetName);
+    }
+
+    private static String getMobileSettingsReference() throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(Constants.RUN_MANAGER_WORKBOOK.toFile());
+        Workbook workbook = new XSSFWorkbook(fileInputStream);
+        Sheet sheet = workbook.getSheet(Constants.SETTINGS_SHEET_NAME);
+        return sheet.getRow(2).getCell(1).toString();
+    }
+
+    private static String getWebSettingsReference() throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(Constants.RUN_MANAGER_WORKBOOK.toFile());
+        Workbook workbook = new XSSFWorkbook(fileInputStream);
+        Sheet sheet = workbook.getSheet(Constants.SETTINGS_SHEET_NAME);
+        return sheet.getRow(1).getCell(1).toString();
+    }
+
+    private static Map<String, String> getWebSettingsDetailsAsMap() throws Exception {
+        return getRowValue(getRowIndex(ExcelManager.getMobileSettingsReference(), Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                getRowIndex("WebConfiguration", Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME);
+    }
+
+    public static Map<String, String> getMobileSettingsDetailsAsMap() throws Exception {
+        return getRowValue(getRowIndex(ExcelManager.getMobileSettingsReference(), Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                getRowIndex("MobileConfiguration", Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME);
     }
 
 }
