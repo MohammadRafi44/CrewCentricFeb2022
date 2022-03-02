@@ -173,8 +173,8 @@ public abstract class MobileActions {
 
     public static void scroll(int y) {
         Dimension size = MobileDriverManager.getDriver().manage().window().getSize();
-        int anchor = (int) (size.width / 2);
-        int startPoint = (int) (size.height / 2 - 50);
+        int anchor = size.width / 2;
+        int startPoint = size.height / 2 - 50;
         new TouchAction(MobileDriverManager.getDriver())
                 .longPress(PointOption.point(anchor, startPoint))
                 .moveTo(PointOption.point(anchor, startPoint + y))

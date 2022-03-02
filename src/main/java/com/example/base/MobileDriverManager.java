@@ -1,6 +1,5 @@
 package com.example.base;
 
-import com.example.utils.ConfigManager;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
@@ -8,15 +7,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 
-/**
- * Selenium webDriver manager
- *
- * @author Author Name
- */
 public class MobileDriverManager {
 
     private static final Logger LOGGER = LogManager.getLogger(MobileDriverManager.class);
@@ -53,6 +47,7 @@ public class MobileDriverManager {
                 LOGGER.info("User provided capability is null. Ignoring...");
             }
             AndroidDriver<MobileElement> androidDriver = new AndroidDriver<>(appiumUrl, desiredCapabilities);
+            androidDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
             MobileDriverManager.setDriver(androidDriver);
             LOGGER.info("Android Driver successfully initialized. Session id : [{}]", androidDriver.getSessionId());
         } catch (Exception e) {
@@ -68,24 +63,5 @@ public class MobileDriverManager {
 
     public static void stopAppium() {
         appiumDriverLocalService.stop();
-    }
-
-    private static class AppiumConfig {
-
-        private static final Boolean useDefaultAppiumSettings = Boolean
-                .parseBoolean(ConfigManager.getConfigProperty("appium.set.default"));
-
-        public URL getAppiumUrl(URL defaultUrl) throws MalformedURLException {
-            return !useDefaultAppiumSettings ? new URL(ConfigManager.getConfigProperty("appium.url")) : defaultUrl;
-        }
-
-        public String getAppiumMainFilePath() {
-            return !useDefaultAppiumSettings ? ConfigManager.getConfigProperty("appium.main.file.path") : System.getProperty("user.home")
-                    .concat("/AppData/Local/Programs/Appium/resources/app/node_modules/appium/build/lib/main.js");
-        }
-
-        public Boolean isEnableAppiumLogs() {
-            return Boolean.parseBoolean(ConfigManager.getConfigProperty("enable.appium.logs"));
-        }
     }
 }
