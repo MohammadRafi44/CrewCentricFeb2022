@@ -44,7 +44,7 @@ public abstract class BaseTest {
     /**
      * User to override and provide desired capabilities. If there are no capabilities to add then simply return null
      */
-    public DesiredCapabilities addCapabilities() throws Exception {
+    public DesiredCapabilities addCapabilities(String testName) throws Exception {
         return null;
     }
 
@@ -61,11 +61,11 @@ public abstract class BaseTest {
         if (tcType.equalsIgnoreCase("web") || tcType.equalsIgnoreCase("web-api")) {
             extentTest.info("Browser : " + ConfigManager.getBrowser());
             LOGGER.info("Current Test_Type is either web or web-api. Will instantiate web driver");
-            DriverManager.initDriver(Browser.valueOf(ConfigManager.getBrowser()), addCapabilities());
+            DriverManager.initDriver(Browser.valueOf(ConfigManager.getBrowser()), addCapabilities(result.getMethod().getMethodName()));
         } else if (tcType.equalsIgnoreCase("mobile")) {
             LOGGER.info("Current Test_Type is Mobile. Will instantiate mobile driver");
             MobileDriverManager.startAppium();
-            MobileDriverManager.initDriver(addCapabilities());
+            MobileDriverManager.initDriver(addCapabilities(result.getMethod().getMethodName()));
         }
     }
 

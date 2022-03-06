@@ -246,4 +246,10 @@ public class ExcelManager {
                 Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME);
     }
 
+    public static Map<String, String> getMobileSettingsDetailsAsMap(String reference) throws Exception {
+        return getRowValue(getRowIndex(reference, Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                getRowIndex("MobileConfiguration", Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME, 0),
+                Constants.RUN_MANAGER_WORKBOOK, Constants.SETTINGS_SHEET_NAME);
+    }
+
 }
