@@ -6,11 +6,14 @@ import com.example.utils.ConfigManager;
 import com.example.utils.Helper;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
 import io.appium.java_client.touch.offset.PointOption;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
+import javafx.scene.input.KeyCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -19,6 +22,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.util.Objects;
+import java.util.Random;
 
 import static io.restassured.RestAssured.given;
 
@@ -163,12 +167,43 @@ public abstract class MobileActions {
         enterText(find(by), value, message);
         LOGGER.debug("Entered text :  [{}] in Web element : [{}]", value, by.toString());
     }
+    public static void enterTextWithBackSpace(By by, String value, String message) {
+        enterTextBackSpace(find(by), value, message);
+        LOGGER.debug("Entered text :  [{}] in Web element : [{}]", value, by.toString());
+    }
+
 
     public static void hideKeyboard() throws Exception {
         if (MobileDriverManager.getDriver().isKeyboardShown()) {
             Thread.sleep(10000);
             MobileDriverManager.getDriver().hideKeyboard();
         }
+    }
+
+  /*  public static void TypeInField(String xpath, String value){
+        String val = value;
+        WebElement element = MobileDriverManager.getDriver().findElement(By.xpath(xpath));
+        element.clear();
+
+        for (int i = 0; i < val.length(); i++){
+            char c = val.charAt(i);
+            String s = new StringBuilder().append(c).toString();
+            element.sendKeys(s);
+        }
+    }*/
+
+    public static void TypeInField(String xpath, String text) {
+        Random r = new Random();
+        WebElement element = MobileDriverManager.getDriver().findElement(By.xpath(xpath));
+        for (int i = 0; i < text.length(); i++) {
+            try {
+                Thread.sleep((int) (r.nextGaussian() * 15 + 100));
+            } catch (InterruptedException e) {
+            }
+            String s = new StringBuilder().append(text.charAt(i)).toString();
+            element.sendKeys(s);
+        }
+        element.sendKeys(Keys.BACK_SPACE);
     }
 
     public static void scroll(int y) {
@@ -185,6 +220,15 @@ public abstract class MobileActions {
     public static void enterText(WebElement webElement, String value, String message) {
         webElement.sendKeys(value);
         Helper.log(message.concat(" ==> ").concat(value));
+        LOGGER.debug("Web element : [{}] | Value entered : [{}]", webElement, value);
+    }
+    public static void enterTextBackSpace(WebElement webElement, String value, String message) {
+        //webElement.sendKeys(value);//+Keys.BACK_SPACE
+        MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.A));
+        MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.U));
+        MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.T));
+        //Helper.log(message.concat(" ==> ").concat(value));
+        //webElement.sendKeys(Keys.BACK_SPACE);
         LOGGER.debug("Web element : [{}] | Value entered : [{}]", webElement, value);
     }
 
@@ -327,4 +371,12 @@ public abstract class MobileActions {
                         + "\").instance(0))");
         click(elementByAndroidUIAutomator, message);
     }
+    public static void acceptAlert(){
+        Alert alert = MobileDriverManager.getDriver().switchTo().alert();
+        alert.accept();
+    }
+    public static void clearText(WebElement webElement) {
+        webElement.clear();
+    }
+
 }

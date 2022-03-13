@@ -301,4 +301,13 @@ public abstract class Actions {
     public static void validateApiResponseStatusCode(Response response, int expectedCode) {
         Assert.assertEquals(response.getStatusCode(), expectedCode);
     }
+
+    public static void acceptAlert(){
+        Alert alert = MobileDriverManager.getDriver().switchTo().alert();
+        alert.accept();
+    }
+    public static void clearText(WebElement webElement) {
+        webElement.clear();
+    }
+
 }
