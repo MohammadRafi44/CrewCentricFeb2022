@@ -4,7 +4,6 @@ import com.aventstack.extentreports.MediaEntityBuilder;
 import com.example.report.ExtentTestManager;
 import com.example.utils.ConfigManager;
 import com.example.utils.Helper;
-import com.google.common.primitives.Chars;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -26,7 +25,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -180,16 +178,7 @@ public abstract class MobileActions {
     }
 
     public static void enterTextByKeyEvent(By by, String value, String message) {
-        List<Character> characters = Chars.asList(value.toCharArray());
-        for (char variable : characters) {
-            if ((variable >= 'A') && (variable <= 'Z')) {
-                MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
-            }
-            MobileDriverManager.getDriver().pressKey(new KeyEvent(getKey(variable)));
-            if ((variable >= 'A') && (variable <= 'Z')) {
-                MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
-            }
-        }
+        MobileDriverManager.getDriver().getKeyboard().sendKeys(value);
         LOGGER.debug("Web element : [{}] | Value entered : [{}]", by.toString(), value);
     }
 
@@ -417,64 +406,4 @@ public abstract class MobileActions {
         int b = clr & 0x000000ff;
         return String.format("#%02x%02x%02x", r, g, b);
     }
-
-    public static AndroidKey getKey(char character) {
-        String key = (character + "").toUpperCase();
-        if (key.equals("A")) {
-            return AndroidKey.A;
-        } else if (key.equals("B")) {
-            return AndroidKey.B;
-        } else if (key.equals("C")) {
-            return AndroidKey.C;
-        } else if (key.equals("D")) {
-            return AndroidKey.D;
-        } else if (key.equals("E")) {
-            return AndroidKey.E;
-        } else if (key.equals("F")) {
-            return AndroidKey.F;
-        } else if (key.equals("G")) {
-            return AndroidKey.G;
-        } else if (key.equals("H")) {
-            return AndroidKey.H;
-        } else if (key.equals("I")) {
-            return AndroidKey.I;
-        } else if (key.equals("J")) {
-            return AndroidKey.J;
-        } else if (key.equals("K")) {
-            return AndroidKey.K;
-        } else if (key.equals("L")) {
-            return AndroidKey.L;
-        } else if (key.equals("M")) {
-            return AndroidKey.M;
-        } else if (key.equals("N")) {
-            return AndroidKey.N;
-        } else if (key.equals("O")) {
-            return AndroidKey.O;
-        } else if (key.equals("P")) {
-            return AndroidKey.P;
-        } else if (key.equals("Q")) {
-            return AndroidKey.Q;
-        } else if (key.equals("R")) {
-            return AndroidKey.R;
-        } else if (key.equals("S")) {
-            return AndroidKey.S;
-        } else if (key.equals("T")) {
-            return AndroidKey.T;
-        } else if (key.equals("U")) {
-            return AndroidKey.U;
-        } else if (key.equals("V")) {
-            return AndroidKey.V;
-        } else if (key.equals("W")) {
-            return AndroidKey.W;
-        } else if (key.equals("X")) {
-            return AndroidKey.X;
-        } else if (key.equals("Y")) {
-            return AndroidKey.Y;
-        } else if (key.equals("Z")) {
-            return AndroidKey.Z;
-        } else {
-            throw new RuntimeException(key + " Key Event not Implemented");
-        }
-    }
-
 }
