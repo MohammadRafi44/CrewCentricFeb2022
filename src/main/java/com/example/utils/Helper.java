@@ -47,6 +47,13 @@ public class Helper {
         return message;
     }
 
+    public static String pass(String message) {
+        LOGGER.info(message);
+        Reporter.log(message);
+        ExtentTestManager.getTest().pass(message);
+        return message;
+    }
+
     public static String fileToString(String path) {
         try {
             return IOUtils.toString(Objects.requireNonNull(Helper.class.getResourceAsStream(path)), StandardCharsets.UTF_8);

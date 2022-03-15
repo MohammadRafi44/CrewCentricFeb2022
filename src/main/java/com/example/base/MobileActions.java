@@ -4,6 +4,7 @@ import com.aventstack.extentreports.MediaEntityBuilder;
 import com.example.report.ExtentTestManager;
 import com.example.utils.ConfigManager;
 import com.example.utils.Helper;
+import com.google.common.primitives.Chars;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -13,7 +14,7 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
-import javafx.scene.input.KeyCode;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -21,6 +22,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -167,9 +173,24 @@ public abstract class MobileActions {
         enterText(find(by), value, message);
         LOGGER.debug("Entered text :  [{}] in Web element : [{}]", value, by.toString());
     }
+
     public static void enterTextWithBackSpace(By by, String value, String message) {
         enterTextBackSpace(find(by), value, message);
         LOGGER.debug("Entered text :  [{}] in Web element : [{}]", value, by.toString());
+    }
+
+    public static void enterTextByKeyEvent(By by, String value, String message) {
+        List<Character> characters = Chars.asList(value.toCharArray());
+        for (char variable : characters) {
+            if ((variable >= 'A') && (variable <= 'Z')) {
+                MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
+            }
+            MobileDriverManager.getDriver().pressKey(new KeyEvent(getKey(variable)));
+            if ((variable >= 'A') && (variable <= 'Z')) {
+                MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
+            }
+        }
+        LOGGER.debug("Web element : [{}] | Value entered : [{}]", by.toString(), value);
     }
 
 
@@ -222,6 +243,7 @@ public abstract class MobileActions {
         Helper.log(message.concat(" ==> ").concat(value));
         LOGGER.debug("Web element : [{}] | Value entered : [{}]", webElement, value);
     }
+
     public static void enterTextBackSpace(WebElement webElement, String value, String message) {
         //webElement.sendKeys(value);//+Keys.BACK_SPACE
         MobileDriverManager.getDriver().pressKey(new KeyEvent(AndroidKey.A));
@@ -371,12 +393,88 @@ public abstract class MobileActions {
                         + "\").instance(0))");
         click(elementByAndroidUIAutomator, message);
     }
-    public static void acceptAlert(){
+
+    public static void acceptAlert() {
         Alert alert = MobileDriverManager.getDriver().switchTo().alert();
         alert.accept();
     }
+
     public static void clearText(WebElement webElement) {
         webElement.clear();
+    }
+
+
+    public static String getColourOfElement(By by, String name) throws IOException {
+        MobileElement elem = MobileDriverManager.getDriver().findElement(by);
+        File scrFile = elem.getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(scrFile, new File(name + ".png"));
+        BufferedImage image = ImageIO.read(new File(name + ".png"));
+        int x = image.getWidth() / 2;
+        int y = image.getHeight() / 2;
+        int clr = image.getRGB(x, y);
+        int r = (clr & 0x00ff0000) >> 16;
+        int g = (clr & 0x0000ff00) >> 8;
+        int b = clr & 0x000000ff;
+        return String.format("#%02x%02x%02x", r, g, b);
+    }
+
+    public static AndroidKey getKey(char character) {
+        String key = (character + "").toUpperCase();
+        if (key.equals("A")) {
+            return AndroidKey.A;
+        } else if (key.equals("B")) {
+            return AndroidKey.B;
+        } else if (key.equals("C")) {
+            return AndroidKey.C;
+        } else if (key.equals("D")) {
+            return AndroidKey.D;
+        } else if (key.equals("E")) {
+            return AndroidKey.E;
+        } else if (key.equals("F")) {
+            return AndroidKey.F;
+        } else if (key.equals("G")) {
+            return AndroidKey.G;
+        } else if (key.equals("H")) {
+            return AndroidKey.H;
+        } else if (key.equals("I")) {
+            return AndroidKey.I;
+        } else if (key.equals("J")) {
+            return AndroidKey.J;
+        } else if (key.equals("K")) {
+            return AndroidKey.K;
+        } else if (key.equals("L")) {
+            return AndroidKey.L;
+        } else if (key.equals("M")) {
+            return AndroidKey.M;
+        } else if (key.equals("N")) {
+            return AndroidKey.N;
+        } else if (key.equals("O")) {
+            return AndroidKey.O;
+        } else if (key.equals("P")) {
+            return AndroidKey.P;
+        } else if (key.equals("Q")) {
+            return AndroidKey.Q;
+        } else if (key.equals("R")) {
+            return AndroidKey.R;
+        } else if (key.equals("S")) {
+            return AndroidKey.S;
+        } else if (key.equals("T")) {
+            return AndroidKey.T;
+        } else if (key.equals("U")) {
+            return AndroidKey.U;
+        } else if (key.equals("V")) {
+            return AndroidKey.V;
+        } else if (key.equals("W")) {
+            return AndroidKey.W;
+        } else if (key.equals("X")) {
+            return AndroidKey.X;
+        } else if (key.equals("Y")) {
+            return AndroidKey.Y;
+        } else if (key.equals("Z")) {
+            return AndroidKey.Z;
+        } else {
+            throw new RuntimeException(key + " Key Event not Implemented");
+        }
     }
 
 }
