@@ -4,6 +4,7 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.ViewName;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -21,6 +22,13 @@ public class ExtentManager {
         EXTENT_REPORTS.attachReporter(reporter);
         EXTENT_REPORTS.setSystemInfo("Author", "Automation team");
         EXTENT_REPORTS.setSystemInfo("Env", "UAT");
+
+        try {
+            ClassLoader classLoader = ExtentManager.class.getClassLoader();
+            File file = new File(classLoader.getResource("extentconfig.xml").getFile());
+            reporter.loadXMLConfig(file);
+        } catch (Exception e) {
+        }
     }
 
     private ExtentManager() {
