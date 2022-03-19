@@ -64,7 +64,7 @@ public abstract class BaseTest {
             DriverManager.initDriver(Browser.valueOf(ConfigManager.getBrowser()), addCapabilities(result.getMethod().getMethodName()));
         } else if (tcType.equalsIgnoreCase("mobile")) {
             LOGGER.info("Current Test_Type is Mobile. Will instantiate mobile driver");
-            MobileDriverManager.startAppium();
+//            MobileDriverManager.startAppium();
             MobileDriverManager.initDriver(addCapabilities(result.getMethod().getMethodName()));
         }
     }
@@ -96,7 +96,7 @@ public abstract class BaseTest {
         }
         if (context.getAttribute("TC_TYPE").toString().equalsIgnoreCase("mobile")) {
             MobileDriverManager.quitDriver();
-            MobileDriverManager.stopAppium();
+//            MobileDriverManager.stopAppium();
         } else {
             DriverManager.quitDriver();
         }

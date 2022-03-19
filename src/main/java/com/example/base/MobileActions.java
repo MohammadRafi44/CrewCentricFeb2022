@@ -8,6 +8,7 @@ import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.android.nativekey.KeyEvent;
+import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -25,8 +26,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 
@@ -178,7 +181,7 @@ public abstract class MobileActions {
     }
 
     public static void enterTextByKeyEvent(By by, String value, String message) {
-        MobileDriverManager.getDriver().getKeyboard().sendKeys(value);
+        MobileDriverManager.getDriver().getKeyboard().pressKey(value);
         LOGGER.debug("Web element : [{}] | Value entered : [{}]", by.toString(), value);
     }
 
@@ -405,5 +408,21 @@ public abstract class MobileActions {
         int g = (clr & 0x0000ff00) >> 8;
         int b = clr & 0x000000ff;
         return String.format("#%02x%02x%02x", r, g, b);
+    }
+
+    public static void swipeLeft(By cardAddress, int yOffset) {
+        MobileElement elem = MobileDriverManager.getDriver().findElement(cardAddress);
+        Point point = elem.getLocation();
+        Dimension screenSize = MobileDriverManager.getDriver().manage().window().getSize();
+        int startX = Math.toIntExact(Math.round(screenSize.getWidth() * 0.8));
+        int endX = Math.toIntExact(Math.round(screenSize.getWidth() * 0.2));
+        int y = point.getY() + yOffset;
+        TouchAction action = new TouchAction(MobileDriverManager.getDriver());
+        action
+                .press(PointOption.point(startX, y))
+                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(500)))
+                .moveTo(PointOption.point(endX, y))
+                .release();
+        MobileDriverManager.getDriver().performTouchAction(action);
     }
 }
