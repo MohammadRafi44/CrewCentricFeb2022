@@ -47,7 +47,7 @@ public class MobileDriverManager {
                 LOGGER.info("User provided capability is null. Ignoring...");
             }
             AndroidDriver<MobileElement> androidDriver = new AndroidDriver<>(appiumUrl, desiredCapabilities);
-            androidDriver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+            androidDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
             MobileDriverManager.setDriver(androidDriver);
             LOGGER.info("Android Driver successfully initialized. Session id : [{}]", androidDriver.getSessionId());
         } catch (Exception e) {
