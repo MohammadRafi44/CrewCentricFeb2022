@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 
@@ -254,6 +253,10 @@ public abstract class MobileActions {
         return webElement.getText();
     }
 
+    public static String getAttribute(By by, String attributeName) {
+        return find(by).getAttribute(attributeName);
+    }
+
     public static Object executeJs(String javaScript) {
         JavascriptExecutor executor = MobileDriverManager.getDriver();
         return executor.executeScript(javaScript);
@@ -424,5 +427,16 @@ public abstract class MobileActions {
                 .moveTo(PointOption.point(endX, y))
                 .release();
         MobileDriverManager.getDriver().performTouchAction(action);
+    }
+
+    public static boolean checkIfRadioButtonSelected(By by) {
+        try {
+            if (MobileDriverManager.getDriver().findElement(by).isSelected()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }
