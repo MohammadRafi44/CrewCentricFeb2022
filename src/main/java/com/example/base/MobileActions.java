@@ -254,6 +254,7 @@ public abstract class MobileActions {
     }
 
     public static String getAttribute(By by, String attributeName) {
+//        return MobileDriverManager.getDriver().findElement(by).getAttribute(attributeName);
         return find(by).getAttribute(attributeName);
     }
 
