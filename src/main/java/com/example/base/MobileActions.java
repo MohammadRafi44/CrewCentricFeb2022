@@ -229,6 +229,17 @@ public abstract class MobileActions {
                 .perform();
     }
 
+    public static void scrollUp(int points) {
+        Dimension size = MobileDriverManager.getDriver().manage().window().getSize();
+        int anchor = size.width / 2;
+        int startPoint = (int) (size.height * 0.8);
+        new TouchAction(MobileDriverManager.getDriver())
+                .longPress(PointOption.point(anchor, startPoint))
+                .moveTo(PointOption.point(anchor, startPoint - points))
+                .release()
+                .perform();
+    }
+
     public static void enterText(WebElement webElement, String value, String message) {
         webElement.sendKeys(value);
         Helper.log(message.concat(" ==> ").concat(value));
